@@ -1,0 +1,8 @@
+# Exact versions verified together: every page renders and all ETL scripts run.
+# Upgrade deliberately: change a version, run the smoke test in
+# docs/KNOWLEDGE_TRANSFER.md (section 7.5), then click through the site.
+# pandas 3.x needs Python 3.11 or newer.
+streamlit==1.66.1
+pandas==3.1.1
+plotly==7.1.0
+openpyxl==3.1.5
