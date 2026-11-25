@@ -108,6 +108,7 @@ through the site before pushing.
 | `.streamlit/config.toml` | Light theme and basic server settings | Changing the app's overall look |
 | `.devcontainer/devcontainer.json` | Optional: GitHub Codespaces dev environment (Python 3.11) | Rarely |
 | `requirements.txt` | Python dependencies | Pinning or adding libraries |
+| `.github/workflows/keep-awake.yml`, `.github/scripts/keep_awake.py` | Scheduled job that keeps the live app awake and checks it loads (section 6.4) | The app URL or home page title changes |
 
 ### Topic map: sheet to script to CSVs to page
 
@@ -254,9 +255,20 @@ page looks stale, use the app menu on the deployed page to reboot it.
 
 ### 6.4 Things to know about Community Cloud before relying on it
 
-- Apps with no recent visitors are put to sleep. The next visitor sees a "wake this app" screen
-  and waits. This matters most if the dashboard is embedded on a public page. If it is unacceptable,
-  host it on infrastructure ESS controls instead.
+- Apps with no recent visitors are put to sleep, and the next visitor sees a "wake this app" screen
+  and waits. To prevent this, the repository has a scheduled GitHub Actions job
+  (`.github/workflows/keep-awake.yml`) that opens the dashboard in a headless browser every 4 hours
+  and clicks the wake-up button if needed. It runs free on GitHub for public repositories.
+  - **It doubles as an uptime check:** a failed run (red cross on the repository's *Actions* tab)
+    means the dashboard did not load, and GitHub emails the account. Failed runs keep a screenshot
+    of what the browser saw.
+  - **Run it by hand:** *Actions* tab, *Keep dashboard awake*, *Run workflow*.
+  - **If the home page title changes,** update `HOME_HEADING` in `.github/scripts/keep_awake.py`,
+    otherwise every run fails even though the site is fine.
+  - **If the app moves,** update `APP_URL` in the workflow file.
+  - GitHub switches off scheduled jobs in public repositories after 60 days without commits. The
+    job re-enables itself on every run to avoid this, but glance at the *Actions* tab now and then
+    to confirm runs are still happening.
 - The app is tied to the account that created it. This is the exact situation this document is meant
   to avoid, so choose an account the organisation can always access.
 - Free-tier limits and terms can change. Check Streamlit's current documentation rather than assuming.

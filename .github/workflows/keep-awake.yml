@@ -1,0 +1,63 @@
+name: Keep dashboard awake
+
+# Streamlit Community Cloud puts apps to sleep when nobody visits for a while.
+# This job opens the live dashboard in a headless browser every few hours so it
+# stays awake. If the dashboard fails to load, the run fails and GitHub sends a
+# notification, so it also works as a simple uptime check.
+# Details: .github/scripts/keep_awake.py
+
+on:
+  schedule:
+    - cron: "23 */4 * * *"   # every 4 hours, at 23 minutes past the hour (UTC)
+  workflow_dispatch:          # adds a "Run workflow" button on the Actions tab
+  push:                       # run once whenever this job itself is changed
+    branches: [main]
+    paths:
+      - ".github/workflows/keep-awake.yml"
+      - ".github/scripts/keep_awake.py"
+
+permissions:
+  contents: read
+  actions: write   # used only by the last step, to keep this schedule switched on
+
+concurrency:
+  group: keep-awake
+  cancel-in-progress: false
+
+jobs:
+  visit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install headless browser
+        run: |
+          pip install playwright==1.65.2
+          python -m playwright install --with-deps chromium
+
+      - name: Visit the dashboard
+        env:
+          APP_URL: https://essirl2011-dashboard.streamlit.app/
+        run: python .github/scripts/keep_awake.py
+
+      - name: Save a screenshot if the dashboard did not load
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: keep-awake-failure
+          path: keep_awake_failure.png
+          if-no-files-found: ignore
+
+      - name: Keep this schedule from being switched off
+        # GitHub automatically disables scheduled jobs in public repositories
+        # after 60 days without commits. Re-enabling the job on every run is
+        # how common keep-alive tools avoid that.
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keep-awake.yml/enable"
