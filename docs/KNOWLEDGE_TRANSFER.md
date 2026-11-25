@@ -7,7 +7,7 @@
 | **Date** | 25 November 2026 |
 | **Audience** | Anyone on the ESS team who needs to rebuild, host, update or hand on the dashboard |
 | **Repository** | `https://github.com/europeansocialsurveyireland-arch/ESS_IRL_2011-Dashboard` (owned by the official ESS account) |
-| **Live app** | Added once deployed (section 6.3) |
+| **Live app** | `https://essirl2011-dashboard.streamlit.app/` |
 
 ## 1. Why this document exists
 
@@ -377,7 +377,7 @@ themselves; the COVID-19 and Precarity footers now name the rounds they use (the
 | Item | Location | Notes |
 |---|---|---|
 | Source code | `https://github.com/europeansocialsurveyireland-arch/ESS_IRL_2011-Dashboard` | Owned by the official ESS account |
-| Live app | Streamlit Community Cloud (URL added once deployed) | Signed in with the same account |
+| Live app | `https://essirl2011-dashboard.streamlit.app/` | Streamlit Community Cloud, signed in with the same account; redeploys automatically on every push to `main` |
 | Codespaces | Any Codespace created from the repository | Disposable; nothing unique is stored there |
 | Secrets, API keys, databases | **None exist** | Nothing to hand over |
 
